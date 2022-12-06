@@ -1,0 +1,18 @@
+﻿using System;
+
+using R5T.T0142;
+using R5T.T0153;
+
+using N003 = R5T.T0153.N003;
+
+
+namespace R5T.F0087
+{
+    [DataTypeMarker]
+    public class ConsoleWithLibrarySolutionResult
+    {
+        public N003.SolutionContext SolutionContext { get; set; }
+        public ProjectContext ConsoleProjectContext { get; set; }
+        public ProjectContext ConsoleLibraryProjectContext { get; set; }
+    }
+}
