@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
 
+using R5T.F0000;
+using R5T.F0085;
 using R5T.T0132;
 using R5T.T0153;
 
@@ -13,261 +15,152 @@ namespace R5T.F0087
 	public partial interface ISolutionOperations : IFunctionalityMarker,
         F0063.ISolutionOperations
 	{
-        public async Task<WebStaticRazorComponentsSolutionResult> CreateSolution_WebStaticRazorComponents(
+        public async Task<SolutionResult> NewSolution_RazorClassLibrary(
             LibraryContext libraryContext,
             bool isRepositoryPrivate,
             string repositoryDirectoryPath)
         {
-            var solutionContext = Instances.SolutionContextOperations.GetSolutionContext(
+            var solutionResult = new SolutionResult();
+
+            await SolutionOperator.Instance.CreateSolution(
                 libraryContext,
                 isRepositoryPrivate,
-                repositoryDirectoryPath);
-
-            WebStaticRazorComponentsSolutionResult result = default;
-
-            async Task SetupSolutionAction()
-            {
-                // Create the server project.
-                var serverProjectContext = Instances.ProjectContextOperations.GetWebStaticRazorComponentsProjectContext(
+                repositoryDirectoryPath,
+                SolutionFileOperations.Instance.NewSolutionFile_VS2022_NoActions,
+                SolutionSetupOperations.Instance.SetupSolution_WindowsFormsApplication(
                     libraryContext,
-                    solutionContext.SolutionDirectoryPath);
-
-                await Instances.ProjectOperations.CreateNewProject_WebStaticRazorComponents(
-                    serverProjectContext.ProjectFilePath,
-                    serverProjectContext.ProjectDescription);
-
-                F0024.SolutionFileOperator.Instance.AddProject(
-                    solutionContext.SolutionFilePath,
-                    serverProjectContext.ProjectFilePath);
-
-                result = new WebStaticRazorComponentsSolutionResult
-                {
-                    SolutionContext = solutionContext,
-                    ServerProjectContext = serverProjectContext,
-                };
-            }
-
-            await this.CreateSolution(
-                 solutionContext,
-                 SetupSolutionAction);
-
-            return result;
-        }
-
-        public async Task<WebBlazorClientAndServerSolutionResult> CreateSolution_WebBlazorClientAndServer(
-            LibraryContext libraryContext,
-            bool isRepositoryPrivate,
-            string repositoryDirectoryPath)
-        {
-            var solutionContext = Instances.SolutionContextOperations.GetSolutionContext(
-                libraryContext,
-                isRepositoryPrivate,
-                repositoryDirectoryPath);
-
-            WebBlazorClientAndServerSolutionResult result = default;
-            
-            async Task SetupSolutionAction()
-            {
-                // Create the server project.
-                var serverProjectContext = Instances.ProjectContextOperations.GetWebServerForBlazorClientProjectContext(
-                    libraryContext,
-                    solutionContext.SolutionDirectoryPath);
-
-                await Instances.ProjectOperations.CreateNewProject_WebServerForBlazorClient(
-                    serverProjectContext.ProjectFilePath,
-                    serverProjectContext.ProjectDescription);
-
-                F0024.SolutionFileOperator.Instance.AddProject(
-                    solutionContext.SolutionFilePath,
-                    serverProjectContext.ProjectFilePath);
-
-                // Creeate the client project.
-                var clientProjectContext = Instances.ProjectContextOperations.GetWebBlazorClientProjectContext(
-                    libraryContext,
-                    solutionContext.SolutionDirectoryPath);
-
-                await Instances.ProjectOperations.CreateNewProject_WebBlazorClient(
-                    clientProjectContext.ProjectFilePath,
-                    clientProjectContext.ProjectDescription);
-
-                F0024.SolutionFileOperator.Instance.AddProject(
-                    solutionContext.SolutionFilePath,
-                    clientProjectContext.ProjectFilePath);
-
-                // Add the client as a project reference of the server.
-                await F0020.ProjectFileOperator.Instance.AddProjectReference_Idempotent(
-                    serverProjectContext.ProjectFilePath,
-                    clientProjectContext.ProjectFilePath);
-
-                result = new WebBlazorClientAndServerSolutionResult
-                {
-                    SolutionContext = solutionContext,
-                    ServerProjectContext = serverProjectContext,
-                    ClientProjectContext = clientProjectContext,
-                };
-            }
-
-            await this.CreateSolution(
-                 solutionContext,
-                 SetupSolutionAction);
-
-            return result;
-        }
-
-        public async Task<ConsoleWithLibrarySolutionResult> CreateSolution_ConsoleWithLibrary(
-            LibraryContext libraryContext,
-            bool isRepositoryPrivate,
-            string repositoryDirectoryPath)
-        {
-            var solutionContext = Instances.SolutionContextOperations.GetSolutionContext(
-                libraryContext,
-                isRepositoryPrivate,
-                repositoryDirectoryPath);
-
-            ConsoleWithLibrarySolutionResult result = default;
-
-            async Task SetupSolutionAction()
-            {
-                // Create the console project.
-                var consoleProjectContext = Instances.ProjectContextOperations.GetConsoleProjectContext(
-                    libraryContext,
-                    solutionContext.SolutionDirectoryPath);
-
-                await Instances.ProjectOperations.CreateNewProject_Console(
-                    consoleProjectContext.ProjectFilePath,
-                    consoleProjectContext.ProjectDescription);
-
-                F0024.SolutionFileOperator.Instance.AddProject(
-                    solutionContext.SolutionFilePath,
-                    consoleProjectContext.ProjectFilePath);
-
-                // Creeate the console library project.
-                var consoleLibraryProjectContext = Instances.ProjectContextOperations.GetConsoleLibraryProjectContext(
-                    libraryContext,
-                    solutionContext.SolutionDirectoryPath);
-
-                await Instances.ProjectOperations.CreateNewProject_Library(
-                    consoleLibraryProjectContext.ProjectFilePath,
-                    consoleLibraryProjectContext.ProjectDescription);
-
-                F0024.SolutionFileOperator.Instance.AddProject(
-                    solutionContext.SolutionFilePath,
-                    consoleLibraryProjectContext.ProjectFilePath);
-
-                await F0020.ProjectFileOperator.Instance.AddProjectReference_Idempotent(
-                    consoleProjectContext.ProjectFilePath,
-                    consoleLibraryProjectContext.ProjectFilePath);
-
-                result = new ConsoleWithLibrarySolutionResult
-                {
-                    SolutionContext = solutionContext,
-                    ConsoleProjectContext = consoleProjectContext,
-                    ConsoleLibraryProjectContext = consoleLibraryProjectContext,
-                };
-            }
-
-            await this.CreateSolution(
-                 solutionContext,
-                 SetupSolutionAction);
-
-            return result;
-        }
-
-        public async Task<ConsoleSolutionResult> CreateSolution_Console(
-			LibraryContext libraryContext,
-            bool isRepositoryPrivate,
-            string repositoryDirectoryPath)
-        {
-            var solutionContext = Instances.SolutionContextOperations.GetSolutionContext(
-                libraryContext,
-                isRepositoryPrivate,
-                repositoryDirectoryPath);
-
-            var solutionResult = await this.CreateSolution_Console(
-                libraryContext,
-                solutionContext);
+                    solutionResult));
 
             return solutionResult;
         }
 
-        public async Task<ConsoleSolutionResult> CreateSolution_Console(
+        /// <summary>
+        /// Creates a solution containing a WinForms application project.
+        /// </summary>
+        public async Task<SolutionResult> NewSolution_WindowsFormsApplication(
             LibraryContext libraryContext,
-            N003.SolutionContext solutionContext)
+            bool isRepositoryPrivate,
+            string repositoryDirectoryPath)
         {
-            ConsoleSolutionResult result = default;
+            var solutionResult = new SolutionResult();
 
-            async Task SetupSolutionAction()
-            {
-                // Create the console project.
-                var consoleProjectContext = Instances.ProjectContextOperations.GetConsoleProjectContext(
+            await SolutionOperator.Instance.CreateSolution(
+                libraryContext,
+                isRepositoryPrivate,
+                repositoryDirectoryPath,
+                SolutionFileOperations.Instance.NewSolutionFile_VS2022_NoActions,
+                SolutionSetupOperations.Instance.SetupSolution_WindowsFormsApplication(
                     libraryContext,
-                    solutionContext.SolutionDirectoryPath);
+                    solutionResult));
 
-                await Instances.ProjectOperations.CreateNewProject_Console(
-                    consoleProjectContext.ProjectFilePath,
-                    consoleProjectContext.ProjectDescription);
-
-                Instances.SolutionFileOperator.AddProject(
-                    solutionContext.SolutionFilePath,
-                    consoleProjectContext.ProjectFilePath);
-
-                result = new ConsoleSolutionResult
-                {
-                    SolutionContext = solutionContext,
-                    ConsoleProjectContext = consoleProjectContext,
-                };
-            }
-
-            await this.CreateSolution(
-                solutionContext,
-                SetupSolutionAction);
-
-            return result;
+            return solutionResult;
         }
 
-        public async Task<ConsoleSolutionResult> CreateSolution_RazorClassLibrary(
+        public async Task<WebStaticRazorComponentsSolutionResult> NewSolution_WebStaticRazorComponents(
             LibraryContext libraryContext,
-            N003.SolutionContext solutionContext)
+            bool isRepositoryPrivate,
+            string repositoryDirectoryPath)
         {
-            ConsoleSolutionResult result = default;
+            var solutionResult = new WebStaticRazorComponentsSolutionResult();
 
-            async Task SetupSolutionAction()
-            {
-                // Create the Razor class library project.
-                var consoleProjectContext = Instances.ProjectContextOperations.GetRazorClassLibraryProjectContext(
+            await SolutionOperator.Instance.CreateSolution(
+                libraryContext,
+                isRepositoryPrivate,
+                repositoryDirectoryPath,
+                SolutionFileOperations.Instance.NewSolutionFile_VS2022_NoActions,
+                SolutionSetupOperations.Instance.SetupSolution_WebStaticRazorComponents(
                     libraryContext,
-                    solutionContext.SolutionDirectoryPath);
+                    solutionResult));
 
-                await Instances.ProjectOperations.CreateNewProject_RazorClassLibrary(
-                    consoleProjectContext.ProjectFilePath,
-                    consoleProjectContext.ProjectDescription);
-
-                Instances.SolutionFileOperator.AddProject(
-                    solutionContext.SolutionFilePath,
-                    consoleProjectContext.ProjectFilePath);
-
-                result = new ConsoleSolutionResult
-                {
-                    SolutionContext = solutionContext,
-                    ConsoleProjectContext = consoleProjectContext,
-                };
-            }
-
-            await this.CreateSolution(
-                solutionContext,
-                SetupSolutionAction);
-
-            return result;
+            return solutionResult;
         }
 
-        public async Task CreateSolution(
+        public async Task<WebBlazorClientAndServerSolutionResult> NewSolution_WebBlazorClientAndServer(
+            LibraryContext libraryContext,
+            bool isRepositoryPrivate,
+            string repositoryDirectoryPath)
+        {
+            var solutionResult = new WebBlazorClientAndServerSolutionResult();
+
+            await SolutionOperator.Instance.CreateSolution(
+                libraryContext,
+                isRepositoryPrivate,
+                repositoryDirectoryPath,
+                SolutionFileOperations.Instance.NewSolutionFile_VS2022_NoActions,
+                SolutionSetupOperations.Instance.SetupSolution_WebBlazorClientAndServer(
+                    libraryContext,
+                    solutionResult));
+
+            return solutionResult;
+        }
+
+        public async Task<ConsoleWithLibrarySolutionResult> NewSolution_ConsoleWithLibrary(
+            LibraryContext libraryContext,
+            bool isRepositoryPrivate,
+            string repositoryDirectoryPath)
+        {
+            var solutionResult = new ConsoleWithLibrarySolutionResult();
+
+            await SolutionOperator.Instance.CreateSolution(
+                libraryContext,
+                isRepositoryPrivate,
+                repositoryDirectoryPath,
+                SolutionFileOperations.Instance.NewSolutionFile_VS2022_NoActions,
+                SolutionSetupOperations.Instance.SetupSolution_ConsoleWithLibrary(
+                    libraryContext,
+                    solutionResult));
+
+            return solutionResult;
+        }
+
+        public async Task<ConsoleSolutionResult> NewSolution_Console(
+			LibraryContext libraryContext,
+            bool isRepositoryPrivate,
+            string repositoryDirectoryPath)
+        {
+            var solutionResult = new ConsoleSolutionResult();
+
+            await SolutionOperator.Instance.CreateSolution(
+                libraryContext,
+                isRepositoryPrivate,
+                repositoryDirectoryPath,
+                SolutionFileOperations.Instance.NewSolutionFile_VS2022_NoActions,
+                SolutionSetupOperations.Instance.SetupSolution_Console(
+                    libraryContext,
+                    solutionResult));
+
+            return solutionResult;
+        }
+
+        public async Task<ConsoleSolutionResult> NewSolution_DeployScripts(
+            LibraryContext libraryContext,
+            bool isRepositoryPrivate,
+            string repositoryDirectoryPath,
+            string targetProjectName)
+        {
+            var solutionResult = new ConsoleSolutionResult();
+
+            await SolutionOperator.Instance.CreateSolution(
+                libraryContext,
+                isRepositoryPrivate,
+                repositoryDirectoryPath,
+                SolutionFileOperations.Instance.NewSolutionFile_VS2022_NoActions,
+                SolutionSetupOperations.Instance.SetupSolution_DeployScripts(
+                    libraryContext,
+                    solutionResult,
+                    targetProjectName));
+
+            return solutionResult;
+        }
+
+        public async Task NewSolution(
             N003.SolutionContext solutionContext,
             Func<Task> setupSolutionAction = default)
         {
-            await Instances.SolutionFileOperations.CreateNew_VS2022(
+            await Instances.SolutionFileOperations.NewSolutionFile_VS2022(
                 solutionContext.SolutionFilePath);
 
-            await F0000.ActionOperator.Instance.Run(setupSolutionAction);
+            await ActionOperator.Instance.Run(setupSolutionAction);
 
             // Add all dependency projects.
             await this.AddMissingDependencies(

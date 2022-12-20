@@ -3,16 +3,19 @@
 using R5T.T0142;
 using R5T.T0153;
 
-using N003 = R5T.T0153.N003;
+using SolutionContext = R5T.T0153.N003.SolutionContext;
 
 
 namespace R5T.F0087
 {
     [DataTypeMarker]
-    public class ConsoleWithLibrarySolutionResult
+    public class ConsoleWithLibrarySolutionResult :
+        IHasSolutionContext,
+        IHasConsoleProjectContext,
+        IHasLibraryProjectContext
     {
-        public N003.SolutionContext SolutionContext { get; set; }
+        public SolutionContext SolutionContext { get; set; }
         public ProjectContext ConsoleProjectContext { get; set; }
-        public ProjectContext ConsoleLibraryProjectContext { get; set; }
+        public ProjectContext LibraryProjectContext { get; set; }
     }
 }

@@ -3,15 +3,17 @@
 using R5T.T0142;
 using R5T.T0153;
 
-using N003 = R5T.T0153.N003;
+using SolutionContext = R5T.T0153.N003.SolutionContext;
 
 
 namespace R5T.F0087
 {
     [DataTypeMarker]
-    public class WebStaticRazorComponentsSolutionResult
+    public class WebStaticRazorComponentsSolutionResult :
+        IHasSolutionContext,
+        IHasServerProjectContext
     {
-        public N003.SolutionContext SolutionContext { get; set; }
+        public SolutionContext SolutionContext { get; set; }
         public ProjectContext ServerProjectContext { get; set; }
     }
 }
