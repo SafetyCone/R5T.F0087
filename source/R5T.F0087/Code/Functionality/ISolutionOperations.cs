@@ -27,7 +27,7 @@ namespace R5T.F0087
                 isRepositoryPrivate,
                 repositoryDirectoryPath,
                 SolutionFileOperations.Instance.NewSolutionFile_VS2022_NoActions,
-                SolutionSetupOperations.Instance.SetupSolution_WindowsFormsApplication(
+                SolutionSetupOperations.Instance.SetupSolution_RazorClassLibrary(
                     libraryContext,
                     solutionResult));
 
