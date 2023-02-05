@@ -37,6 +37,28 @@ namespace R5T.F0087
         /// <summary>
         /// Creates a solution containing a WinForms application project.
         /// </summary>
+        public async Task<SolutionResult> NewSolution_Blog(
+            LibraryContext libraryContext,
+            bool isRepositoryPrivate,
+            string repositoryDirectoryPath)
+        {
+            var solutionResult = new SolutionResult();
+
+            await SolutionOperator.Instance.CreateSolution(
+                libraryContext,
+                isRepositoryPrivate,
+                repositoryDirectoryPath,
+                SolutionFileOperations.Instance.NewSolutionFile_VS2022_NoActions,
+                SolutionSetupOperations.Instance.SetupSolution_Blog(
+                    libraryContext,
+                    solutionResult));
+
+            return solutionResult;
+        }
+
+        /// <summary>
+        /// Creates a solution containing a WinForms application project.
+        /// </summary>
         public async Task<SolutionResult> NewSolution_WindowsFormsApplication(
             LibraryContext libraryContext,
             bool isRepositoryPrivate,

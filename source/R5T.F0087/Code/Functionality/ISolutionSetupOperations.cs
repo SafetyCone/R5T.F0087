@@ -37,6 +37,28 @@ namespace R5T.F0087
             return output;
         }
 
+        public IEnumerable<Func<SolutionContext, Task>> SetupSolution_Blog(
+            LibraryContext libraryContext,
+            SolutionResult solutionResult)
+        {
+            var output = this.SetupSolution_WithStandardActions(
+                solutionResult,
+                SolutionOperations.Instance.AddProject(
+                    solutionContext => Instances.ProjectContextOperations.GetProjectContext(
+                        libraryContext,
+                        solutionContext.SolutionDirectoryPath),
+                    async blogWebApplicationProjectContext =>
+                    {
+                        await Instances.ProjectOperations.NewProject_Blog(
+                            blogWebApplicationProjectContext.ProjectFilePath,
+                            blogWebApplicationProjectContext.ProjectDescription);
+
+                        solutionResult.ProjectContext = blogWebApplicationProjectContext;
+                    }));
+
+            return output;
+        }
+
         public IEnumerable<Func<SolutionContext, Task>> SetupSolution_WindowsFormsApplication(
             LibraryContext libraryContext,
             SolutionResult solutionResult)
